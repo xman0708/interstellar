@@ -192,9 +192,18 @@ const restoreSession = async () => {
         const session = await res.json();
         if (session && session.messages && session.messages.length > 0) {
           sessionId.value = savedSessionId;
-          // 显示最后一条消息
-          const lastMsg = session.messages[session.messages.length - 1];
-          response.value = lastMsg.response || { type: 'text', content: lastMsg.content };
+          // 显示最后一条 AI 消息
+          for (let i = session.messages.length - 1; i >= 0; i--) {
+            const msg = session.messages[i];
+            if (msg.role === 'assistant') {
+              try {
+                response.value = JSON.parse(msg.content);
+              } catch {
+                response.value = { type: 'text', content: msg.content };
+              }
+              break;
+            }
+          }
           return;
         }
       }
@@ -202,6 +211,8 @@ const restoreSession = async () => {
       console.error('Failed to restore session:', e);
     }
   }
+  // 清除无效的 session
+  localStorage.removeItem('lc_session_id');
 };
 
 // 保存 session 到 localStorage

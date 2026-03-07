@@ -2,9 +2,9 @@
   "version": 8,
   "level": 8,
   "xp": 780,
-  "totalInteractions": 86,
+  "totalInteractions": 89,
   "successfulSkills": 78,
-  "failedSkills": 8,
+  "failedSkills": 11,
   "patterns": [
     {
       "trigger": "查看项目列表",
