@@ -1,0 +1,235 @@
+{
+  "version": 8,
+  "level": 8,
+  "xp": 740,
+  "totalInteractions": 80,
+  "successfulSkills": 74,
+  "failedSkills": 6,
+  "patterns": [
+    {
+      "trigger": "查看项目列表",
+      "skill": "api.projects.list",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "今天有啥会议",
+      "skill": "calendar.today",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": " 查看日历和安排会议",
+      "skill": "calendar.upcoming",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "搜索今天天气",
+      "skill": "knowledge.search",
+      "successRate": 100,
+      "count": 4
+    },
+    {
+      "trigger": "上网搜一下python教程",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "搜索Python教程",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 20
+    },
+    {
+      "trigger": "查询今天的股市",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "帮我搜索Python教程",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "今天天气怎么样",
+      "skill": "weather.get",
+      "successRate": 100,
+      "count": 4
+    },
+    {
+      "trigger": "分析项目进度和工时统计",
+      "skill": "code.auto",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "查询下今天上海的天气",
+      "skill": "weather.get",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "你能上网吗",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "搜索下python教程",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "搜索\"Python教程",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "今天TOP10关于LLM的最新新闻",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "搜索人工智能",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 2
+    },
+    {
+      "trigger": "打开百度网页",
+      "skill": "browser.open",
+      "successRate": 100,
+      "count": 2
+    },
+    {
+      "trigger": "打开百度",
+      "skill": "browser.open",
+      "successRate": 100,
+      "count": 12
+    },
+    {
+      "trigger": "打开百度、",
+      "skill": "browser.open",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "打开百度查下今天黄金价格",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "打开知乎",
+      "skill": "browser.open",
+      "successRate": 100,
+      "count": 2
+    },
+    {
+      "trigger": "去小红书上查询下清明节适合去哪里玩",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "去小红书看看现在适合去哪里玩",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "打开小红书上看看大家都在看什么",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "搜索Python",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 5
+    },
+    {
+      "trigger": "打开第1个",
+      "skill": "browser.search",
+      "successRate": 100,
+      "count": 4
+    },
+    {
+      "trigger": "管理和查看邮件",
+      "skill": "email.list",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "目前你查邮件是如何查的",
+      "skill": "email.list",
+      "successRate": 100,
+      "count": 1
+    }
+  ],
+  "improvements": [
+    {
+      "time": "2026-03-06T05:47:51.502Z",
+      "type": "skill",
+      "before": "Level 1",
+      "after": "Level 2",
+      "reason": "XP reached 100"
+    },
+    {
+      "time": "2026-03-06T12:57:37.631Z",
+      "type": "skill",
+      "before": "Level 2",
+      "after": "Level 3",
+      "reason": "XP reached 200"
+    },
+    {
+      "time": "2026-03-06T13:21:01.095Z",
+      "type": "skill",
+      "before": "Level 3",
+      "after": "Level 4",
+      "reason": "XP reached 300"
+    },
+    {
+      "time": "2026-03-06T14:19:32.184Z",
+      "type": "skill",
+      "before": "Level 4",
+      "after": "Level 5",
+      "reason": "XP reached 400"
+    },
+    {
+      "time": "2026-03-06T14:48:47.919Z",
+      "type": "skill",
+      "before": "Level 5",
+      "after": "Level 6",
+      "reason": "XP reached 500"
+    },
+    {
+      "time": "2026-03-06T15:03:08.269Z",
+      "type": "skill",
+      "before": "Level 6",
+      "after": "Level 7",
+      "reason": "XP reached 600"
+    },
+    {
+      "time": "2026-03-06T15:19:58.135Z",
+      "type": "skill",
+      "before": "Level 7",
+      "after": "Level 8",
+      "reason": "XP reached 700"
+    }
+  ],
+  "autoTuning": {
+    "retryCount": 2,
+    "codeLoopCount": 3,
+    "contextWindow": 12,
+    "temperature": 0.7
+  }
+}

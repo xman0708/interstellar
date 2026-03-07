@@ -1,0 +1,9 @@
+{
+  "id": "echo",
+  "name": "Echo Plugin",
+  "version": "1.0.0",
+  "events": [
+    "message.received"
+  ],
+  "enabled": true
+}

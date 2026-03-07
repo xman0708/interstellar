@@ -1,0 +1,10 @@
+{
+  "id": "reminder",
+  "name": "Reminder Plugin",
+  "version": "1.0.0",
+  "events": [
+    "session.start",
+    "session.end"
+  ],
+  "enabled": true
+}

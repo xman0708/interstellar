@@ -1,0 +1,22 @@
+{
+  "id": "wf_1772648135348",
+  "name": "代码审查流程",
+  "description": "自动检查代码质量",
+  "steps": [
+    {
+      "id": "step_0",
+      "name": "获取PR",
+      "skill": "code.parse",
+      "params": {}
+    },
+    {
+      "id": "step_1",
+      "name": "分析代码",
+      "skill": "code.qa",
+      "params": {
+        "question": "这段代码有什么问题？"
+      }
+    }
+  ],
+  "enabled": true
+}

@@ -1,0 +1,9 @@
+{
+  "id": "logger",
+  "name": "Logger Plugin",
+  "version": "1.0.0",
+  "events": [
+    "*"
+  ],
+  "enabled": true
+}

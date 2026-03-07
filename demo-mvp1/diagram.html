@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OpenClaw 启动流程</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            padding: 40px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h2 { 
+            color: white; 
+            margin-bottom: 30px; 
+            text-align: center;
+            font-size: 28px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .flow { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+        .step:hover { transform: translateX(10px); }
+        .step-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .step-arrow {
+            color: #999;
+            margin: 0 15px;
+            font-size: 24px;
+        }
+        .step-content {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .step:nth-child(1) .step-num { background: #e1f5fe; color: #01579b; }
+        .step:nth-child(2) .step-num { background: #f3e5f5; color:c; }
+        #4a148 .step:nth-child(3) .step-num { background: #e8f5e9; color: #1b5e20; }
+        .step:nth-child(4) .step-num { background: #ffebee; color: #b71c1c; }
+        .step:nth-child(5) .step-num { background: #fff3e0; color: #e65100; }
+        .step:nth-child(6) .step-num { background: #e0f7fa; color: #006064; }
+        .step:nth-child(7) .step-num { background: #fce4ec; color: #880e4f; }
+        .step:nth-child(8) .step-num { background: #f5f5f5; color: #424242; }
+        .step:nth-child(9) .step-num { background: #e8eaf6; color: #283593; }
+        
+        .arrow-line {
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            margin-left: 78px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔄 OpenClaw 启动流程</h2>
+        <div class="flow">
+            <div class="step">
+                <div class="step-num">A</div>
+                <div class="step-content"><strong>build 入口</strong> - 启动程序入口</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content"><strong>Identity & Narration Protocol</strong> - 身份与叙事协议</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content"><strong>Tooling Reference & Contract</strong> - 工具引用与契约</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><strong>Safety & Constraints</strong> - 安全与约束</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content"><strong>Skills Section - Mandatory Scan</strong> - 技能部分 - 强制扫描</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content"><strong>Workspace & Intent Notes</strong> - 工作区与意图笔记</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">6</div>
+                <div class="step-content"><strong>Project Context</strong> - 项目上下文 (Soul/User/FileTree)</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">7</div>
+                <div class="step-content"><strong>Silent Reply Protocol</strong> - 静默回复协议 [[SILENCE]]</div>
+            </div>
+            <div class="arrow-line"></div>
+            <div class="step">
+                <div class="step-num">8</div>
+                <div class="step-content"><strong>Runtime Status Line</strong> - 运行时状态行</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
