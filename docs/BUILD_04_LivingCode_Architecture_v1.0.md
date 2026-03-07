@@ -141,7 +141,7 @@ LivingCode/
 | 业务 API | ✅ | 项目/任务/统计 |
 | UI 响应 | ✅ | chart/table/action/text |
 | 流式响应 | ✅ | SSE 接口已实现 |
-| Tool Calling | ⚠️ | MiniMax 暂不支持 |
+| Tool Calling | 🔄 | 正在实现中 |
 
 ## 演进路线
 
