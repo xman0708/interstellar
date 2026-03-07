@@ -223,8 +223,9 @@ const handleSend = async () => {
   isLoading.value = true;
   response.value = null;
   
+  // 使用流式 API
   try {
-    const res = await fetch('http://localhost:3000/api/agent/chat', {
+    const res = await fetch('http://localhost:3000/api/agent/chat/stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -235,17 +236,46 @@ const handleSend = async () => {
       }),
     });
     
-    const data = await res.json();
-    sessionId.value = data.sessionId;
-    saveSession();
-    response.value = data.ui;
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder();
+    let resultText = '';
+    
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              // 保存 sessionId
+              if (data.sessionId) {
+                sessionId.value = data.sessionId;
+                saveSession();
+              }
+              // 累积文本
+              if (data.ui?.content) {
+                resultText = data.ui.content;
+                response.value = { ...data.ui, content: resultText };
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        }
+        
+        await nextTick();
+        if (chatAreaRef.value) {
+          chatAreaRef.value.scrollTop = chatAreaRef.value.scrollHeight;
+        }
+      }
+    }
     
     prompt.value = '';
-    
-    await nextTick();
-    if (chatAreaRef.value) {
-      chatAreaRef.value.scrollTop = chatAreaRef.value.scrollHeight;
-    }
   } catch (error) {
     console.error('Error:', error);
     response.value = { type: 'text', content: '请求失败，请检查服务是否运行' };

@@ -1,10 +1,10 @@
 {
   "version": 8,
   "level": 8,
-  "xp": 770,
-  "totalInteractions": 83,
-  "successfulSkills": 77,
-  "failedSkills": 6,
+  "xp": 780,
+  "totalInteractions": 86,
+  "successfulSkills": 78,
+  "failedSkills": 8,
   "patterns": [
     {
       "trigger": "查看项目列表",
@@ -189,6 +189,12 @@
     {
       "trigger": "在 server.ts 中添加 /pin",
       "skill": "self.coder",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "你现在会自己写代码强大自己吗",
+      "skill": "code.auto",
       "successRate": 100,
       "count": 1
     }
