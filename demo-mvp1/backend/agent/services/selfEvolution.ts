@@ -90,9 +90,14 @@ async function selfDiagnose(): Promise<DiagnosisResult> {
   const tsFiles = getTypeScriptFiles(backendPath);
   
   let totalLines = 0;
+  let largeFiles: string[] = [];
   for (const file of tsFiles) {
     const content = fs.readFileSync(file, 'utf-8');
-    totalLines += content.split('\n').length;
+    const lines = content.split('\n').length;
+    totalLines += lines;
+    if (lines > 500) {
+      largeFiles.push(`${path.basename(file)} (${lines}行)`);
+    }
   }
   
   if (tsFiles.length > 30) {
@@ -102,6 +107,34 @@ async function selfDiagnose(): Promise<DiagnosisResult> {
       description: `项目有 ${tsFiles.length} 个 TypeScript 文件，共 ${totalLines} 行代码`,
       suggestion: '考虑拆分过大的模块'
     });
+  }
+  
+  if (largeFiles.length > 0) {
+    issues.push({
+      type: 'performance',
+      severity: 'medium',
+      description: `发现 ${largeFiles.length} 个较大文件: ${largeFiles.slice(0, 3).join(', ')}`,
+      suggestion: '考虑拆分大文件'
+    });
+    score -= 10;
+  }
+  
+  // 检查 TODO
+  let todoCount = 0;
+  for (const file of tsFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const todos = content.match(/\/\/\s*TODO|\/\*\s*TODO/gi);
+    if (todos) todoCount += todos.length;
+  }
+  
+  if (todoCount > 0) {
+    issues.push({
+      type: 'logic',
+      severity: 'low',
+      description: `发现 ${todoCount} 个 TODO 待办项`,
+      suggestion: '清理 TODO 或完成待办事项'
+    });
+    score -= todoCount * 2;
   }
   
   // 检查缺失的功能
@@ -154,32 +187,13 @@ function generateEvolutionPlan(diagnosis: DiagnosisResult): EvolutionPlan[] {
   const plans: EvolutionPlan[] = [];
   
   for (const issue of diagnosis.issues) {
-    if (issue.type === 'error' && issue.severity === 'high') {
-      plans.push({
-        id: `fix_error_${Date.now()}`,
-        description: `修复错误: ${issue.description}`,
-        priority: 'high',
-        estimatedImpact: '提高系统稳定性'
-      });
-    }
-    
-    if (issue.type === 'performance' && issue.severity === 'high') {
-      plans.push({
-        id: `optimize_perf_${Date.now()}`,
-        description: `性能优化: ${issue.description}`,
-        priority: 'high',
-        estimatedImpact: '提升响应速度'
-      });
-    }
-    
-    if (issue.type === 'logic') {
-      plans.push({
-        id: `add_feature_${Date.now()}`,
-        description: `功能增强: ${issue.description}`,
-        priority: issue.severity === 'high' ? 'high' : 'medium',
-        estimatedImpact: '提升用户体验'
-      });
-    }
+    // 所有问题都生成计划
+    plans.push({
+      id: `${issue.type}_${Date.now()}`,
+      description: issue.description + (issue.suggestion ? ` - ${issue.suggestion}` : ''),
+      priority: issue.severity,
+      estimatedImpact: getImpactDescription(issue)
+    });
   }
   
   // 按优先级排序
@@ -189,6 +203,16 @@ function generateEvolutionPlan(diagnosis: DiagnosisResult): EvolutionPlan[] {
   });
   
   return plans;
+}
+
+function getImpactDescription(issue: Issue): string {
+  switch (issue.type) {
+    case 'error': return '提高系统稳定性';
+    case 'performance': return '提升系统性能';
+    case 'ux': return '改善用户体验';
+    case 'logic': return '增强功能完整性';
+    default: return '优化代码质量';
+  }
 }
 
 /**
