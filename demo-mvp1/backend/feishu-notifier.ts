@@ -10,12 +10,12 @@ import * as path from 'path';
 
 const CONFIG = {
   // 飞书应用凭据 (需要替换为实际值)
-  appId: process.env.FEISHU_APP_ID || '',
-  appSecret: process.env.FEISHU_APP_SECRET || '',
+  appId: process.env.FEISHU_APP_ID || 'cli_a90a0b72cb789bdb',
+  appSecret: process.env.FEISHU_APP_SECRET || 'EWgHhpyy3kLuKrypngw7wg8mIooVRJSC',
   // 通知目标: user_id 或 open_id 或群 chat_id
-  notifyUserId: process.env.FEISHU_NOTIFY_USER_ID || '',
+  notifyUserId: process.env.FEISHU_NOTIFY_USER_ID || 'ou_51ec545c4bf02911a1a4cd303315ea6b',
   notifyChatId: process.env.FEISHU_NOTIFY_CHAT_ID || '',
-  logPath: path.join(__dirname, '../../workspace/logs/feishu-notifier.log'),
+  logPath: path.join(process.cwd(), 'workspace/logs/feishu-notifier.log'),
 };
 
 interface FeishuMessage {
@@ -97,14 +97,13 @@ class FeishuNotifier {
     try {
       const token = await this.getAccessToken();
       
-      const response = await fetch('https://open.feishu.cn/open-apis/im/v1/messages', {
+      const response = await fetch('https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json; charset=utf-8',
         },
         body: JSON.stringify({
-          receive_id_type: 'open_id',
           receive_id: CONFIG.notifyUserId,
           msg_type: 'text',
           content: JSON.stringify({ text }),
@@ -112,6 +111,7 @@ class FeishuNotifier {
       });
 
       const data = await response.json();
+      this.log(`发送结果: ${JSON.stringify(data)}`);
       
       if (data.code && data.code !== 0) {
         throw new Error(`发送消息失败: ${data.msg}`);
