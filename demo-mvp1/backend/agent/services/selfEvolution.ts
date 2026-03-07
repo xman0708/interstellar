@@ -242,7 +242,7 @@ function getImpactDescription(issue: Issue): string {
 }
 
 /**
- * 3. 执行进化
+ * 3. 执行进化 - 每次只修复一个问题
  */
 async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean; message: string; committed?: boolean }> {
   console.log(`[Evolution] Executing: ${plan.description}`);
@@ -253,16 +253,23 @@ async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean
       // 调用 self_coder 尝试修复
       const { executeSelfCoder } = await import('../skills/selfCoderSkill.js');
       
-      let fixRequest = plan.description;
+      // 每次只给一个简单的修复任务
+      let fixRequest = '';
       if (plan.description.includes('伪流式')) {
-        fixRequest = '修复 LivingCode 的伪流式响应问题，改为真正的流式输出';
+        // 第一步：先添加一个简单的 SSE 流式接口
+        fixRequest = '在 server.ts 中添加一个 /stream 接口，使用 SSE (Server-Sent Events) 返回流式数据';
       } else if (plan.description.includes('Tool Calling')) {
-        fixRequest = '实现 LivingCode 的 Tool Calling 功能';
+        // 第二步：实现简单的工具调用
+        fixRequest = '在 agentLoop.ts 中添加一个简单的工具调用示例，实现 function calling 格式';
       }
       
-      console.log('[Evolution] Calling self_coder to fix:', fixRequest);
+      if (!fixRequest) {
+        return { success: false, message: '没有具体的修复步骤' };
+      }
+      
+      console.log('[Evolution] Step 1:', fixRequest);
       const result = await executeSelfCoder(fixRequest);
-      console.log('[Evolution] self_coder result:', result.message);
+      console.log('[Evolution] self_coder result:', result.message.slice(0, 100));
       
       // 检查是否有变化
       const backendPath = path.join(__dirname, '../../');
@@ -270,7 +277,7 @@ async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean
       
       if (status.trim()) {
         await execAsync('git add .', { cwd: backendPath });
-        await execAsync(`git commit -m "fix: ${plan.description.slice(0, 50)}"`, { cwd: backendPath });
+        await execAsync(`git commit -m "fix: ${fixRequest.slice(0, 50)}"`, { cwd: backendPath });
         
         try {
           await execAsync('git push origin main', { cwd: backendPath, timeout: 30000 });
@@ -279,7 +286,7 @@ async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean
           console.log('[Evolution] 推送失败，仅本地提交');
         }
         
-        return { success: true, message: `已修复: ${plan.description}`, committed: true };
+        return { success: true, message: `已完成: ${fixRequest}`, committed: true };
       }
       
       return { success: true, message: result.message };
