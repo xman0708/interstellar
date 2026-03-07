@@ -16,6 +16,8 @@ import type { UIResponse } from './skills/ui.js';
 import { getLevel } from './services/brain.js';
 import { executeSkill, getSkillList, SKILLS } from './skills/registry.js';
 import { recordInteraction, getSmartLevel, getOptimizationSuggestions } from './services/evolution.js';
+import { classifyIntent, classifyIntentSimple, type IntentResult } from './services/intentClassifier.js';
+import { executeSelfCoder } from './skills/selfCoderSkill.js';
 
 const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
 const BASE_URL = process.env.MINIMAX_BASE_URL || 'https://api.minimaxi.com/anthropic';
@@ -63,7 +65,7 @@ function detectByKeywords(message: string): { intent: string; params: any } | nu
     'api.tasks.list': ['任务', '待办', 'todo', '任务列表'],
     // 邮件 - 发送才触发
     'email.send': ['发邮件', '发送邮件', '发送', '发出去', '发吧', 'send email'],
-    'email.list': ['邮件列表', '有哪些邮件', '邮件', 'email'],
+    'email.list': ['邮件列表', '有哪些邮件', '查看邮件', 'email list'],
     'email.unread': ['未读邮件', '新邮件'],
     'calendar.today': ['今日会议', '今天会议', '今天有啥会', 'calendar'],
     'calendar.upcoming': ['接下来', '即将', '一会'],
@@ -75,7 +77,7 @@ function detectByKeywords(message: string): { intent: string; params: any } | nu
     'browser.open': ['打开', '访问', '浏览网页'],
     'weather.get': ['天气', '多少度', '冷不冷', '热不热'],
     // 自我编程 (优先级高)
-    'self.coder': ['修改代码', '改一下代码', '添加功能', '加个接口', '添加接口', '修改server', '在server.ts', '添加一个', '加一个', '新增接口', 'server.ts中', 'server.ts'],
+    'self.coder': ['修改代码', '改一下代码', '添加功能', '加个接口', '添加接口', '修改server', '在server.ts', '添加一个', '加一个', '新增接口', 'server.ts中', 'server.ts', '自己升级', '升级代码', '升级模块', '自我升级', '改一下', '优化代码', '重构'],
     // 代码
     'code.run': ['运行代码', '执行代码', '跑一下', 'run code'],
     'code.solve': ['帮我写', '写一个', '计算', '处理', '找出', '去重', '排序', '过滤', '求和'],
@@ -243,8 +245,50 @@ async function smartCodeExecute(message: string): Promise<UIResponse> {
 async function smartExecute(message: string, history: any[]): Promise<{ intent: string; result: any; ui: UIResponse } | null> {
   const triedIntents = new Set<string>();
   
+  // ===== 新增: LLM Intent Classifier =====
+  console.log('[SmartExec] Using LLM Intent Classifier...');
+  const llmIntent = await classifyIntent(message);
+  console.log('[SmartExec] LLM Intent:', JSON.stringify(llmIntent));
+  
+  // 如果需要澄清，返回澄清问题
+  if (llmIntent.needsClarify && llmIntent.clarification) {
+    return {
+      intent: 'clarification',
+      result: null,
+      ui: { type: 'text', content: llmIntent.clarification }
+    };
+  }
+  
+  // 处理 self_coder 意图
+  if (llmIntent.intent === 'self_coder') {
+    console.log('[SmartExec] Executing self.coder...');
+    const coderResult = await executeSelfCoder(message);
+    return {
+      intent: 'self.coder',
+      result: coderResult,
+      ui: { type: 'text', content: coderResult.message }
+    };
+  }
+  
+  // 处理 skill 意图
+  if (llmIntent.intent === 'skill' && llmIntent.skillName) {
+    console.log(`[SmartExec] Executing skill: ${llmIntent.skillName}`);
+    try {
+      const result = await executeSkill(llmIntent.skillName, { message });
+      const ui = dataToUIResponse(result);
+      return {
+        intent: llmIntent.skillName,
+        result,
+        ui
+      };
+    } catch (e: any) {
+      console.log('[SmartExec] Skill failed:', e.message);
+    }
+  }
+  
+  // ===== 原有逻辑作为后备 =====
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-    console.log(`[SmartExec] Iteration ${iteration + 1}`);
+    console.log(`[SmartExec] Fallback Iteration ${iteration + 1}`);
     
     let intentResult = detectByKeywords(message);
     

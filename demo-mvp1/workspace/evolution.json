@@ -1,10 +1,10 @@
 {
-  "version": 8,
-  "level": 8,
-  "xp": 780,
-  "totalInteractions": 89,
-  "successfulSkills": 78,
-  "failedSkills": 11,
+  "version": 9,
+  "level": 9,
+  "xp": 830,
+  "totalInteractions": 96,
+  "successfulSkills": 83,
+  "failedSkills": 13,
   "patterns": [
     {
       "trigger": "查看项目列表",
@@ -58,7 +58,7 @@
       "trigger": "今天天气怎么样",
       "skill": "weather.get",
       "successRate": 100,
-      "count": 4
+      "count": 5
     },
     {
       "trigger": "分析项目进度和工时统计",
@@ -197,6 +197,24 @@
       "skill": "code.auto",
       "successRate": 100,
       "count": 1
+    },
+    {
+      "trigger": "你自己升级下你的邮件模块部分",
+      "skill": "email.list",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "你自己升级下邮件模块",
+      "skill": "self.coder",
+      "successRate": 100,
+      "count": 2
+    },
+    {
+      "trigger": "帮我查查有哪些邮件",
+      "skill": "email.list",
+      "successRate": 100,
+      "count": 1
     }
   ],
   "improvements": [
@@ -248,6 +266,13 @@
       "before": "Level 7",
       "after": "Level 8",
       "reason": "XP reached 700"
+    },
+    {
+      "time": "2026-03-07T05:54:47.314Z",
+      "type": "skill",
+      "before": "Level 8",
+      "after": "Level 9",
+      "reason": "XP reached 800"
     }
   ],
   "autoTuning": {
