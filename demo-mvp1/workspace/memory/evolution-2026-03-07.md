@@ -6,15 +6,15 @@
 
 ## 发现的问题
 
-- [medium] 项目有 43 个 TypeScript 文件，共 7791 行代码
+- [medium] 项目有 43 个 TypeScript 文件，共 7859 行代码
 - [medium] 发现 2 个较大文件: index.ts (724行), server.ts (564行)
 
 ## 进化计划
 
-- [medium] 项目有 43 个 TypeScript 文件，共 7791 行代码 - 考虑拆分过大的模块
+- [medium] 项目有 43 个 TypeScript 文件，共 7859 行代码 - 考虑拆分过大的模块
 - [medium] 发现 2 个较大文件: index.ts (724行), server.ts (564行) - 考虑拆分大文件
 
 ## 执行结果
 
-- 已记录: 项目有 43 个 TypeScript 文件，共 7791 行代码 - 考虑拆分过大的模块
+- 已记录: 项目有 43 个 TypeScript 文件，共 7859 行代码 - 考虑拆分过大的模块
 - 已记录: 发现 2 个较大文件: index.ts (724行), server.ts (564行) - 考虑拆分大文件
