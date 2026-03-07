@@ -36,11 +36,37 @@ interface EvolutionPlan {
 }
 
 /**
- * 1. 自我诊断 - 分析最近的问题
+ * 1. 自我诊断 - 分析最近的问题 + 设计文档
  */
 async function selfDiagnose(): Promise<DiagnosisResult> {
   const issues: Issue[] = [];
   let score = 100;
+  
+  // 读取设计文档发现问题
+  const docsPath = path.join(__dirname, '../../../../docs');
+  if (fs.existsSync(docsPath)) {
+    const files = fs.readdirSync(docsPath);
+    const designFiles = files.filter(f => f.startsWith('BUILD_') && f.endsWith('.md'));
+    
+    for (const file of designFiles) {
+      const content = fs.readFileSync(path.join(docsPath, file), 'utf-8');
+      
+      // 检查 ⚠️ 标记的问题
+      const warningMatches = content.match(/⚠️\s+([^\n]+)/g);
+      if (warningMatches) {
+        for (const match of warningMatches) {
+          const desc = match.replace('⚠️', '').trim();
+          issues.push({
+            type: 'design',
+            severity: 'high',
+            description: `设计问题: ${desc}`,
+            suggestion: '根据设计文档优化'
+          });
+          score -= 15;
+        }
+      }
+    }
+  }
   
   // 读取最近日志
   const logFile = path.join(LOG_PATH, 'server.log');
