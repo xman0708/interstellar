@@ -199,11 +199,11 @@ export function setupHeartbeatTasks(heartbeat: HeartbeatManager): void {
     const sessions = SessionManager.listSessions();
     console.log(`[Health] Sessions: ${sessions.length}, Notifications: ${heartbeat.getNotifications().length}`);
     
-    // 顺便执行自我进化检查 (每60次检查，即约1小时)
+    // 顺便执行自我进化检查 (每5次检查，即约5分钟)
     const checkCount = (heartbeat as any)._checkCount || 0;
     (heartbeat as any)._checkCount = checkCount + 1;
     
-    if (checkCount % 60 === 0) {
+    if (checkCount % 5 === 0) {
       console.log('[Health] Triggering self-evolution check...');
       try {
         const { runSelfEvolution } = await import('./services/selfEvolution.js');
