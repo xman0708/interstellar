@@ -140,7 +140,7 @@ LivingCode/
 | 后台任务 | ✅ | Heartbeat |
 | 业务 API | ✅ | 项目/任务/统计 |
 | UI 响应 | ✅ | chart/table/action/text |
-| 流式响应 | ⚠️ | 伪流式 |
+| 流式响应 | ✅ | SSE 接口已实现 |
 | Tool Calling | ⚠️ | MiniMax 暂不支持 |
 
 ## 演进路线
