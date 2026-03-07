@@ -11,6 +11,7 @@ import { executeCalendar } from './calendarSkill.js';
 import { detectIntent, runCode, generateCode, techQA, solveProblem, generateHtml } from './programming.js';
 import { browse, searchWeb } from './browserSkill.js';
 import { getWeather } from './weatherSkill.js';
+import { executeSelfCoder } from './selfCoderSkill.js';
 import * as playwrightSkills from './playwrightSkill.js';
 const { smartBrowserAction, openPage, takeScreenshot, clickElement, typeText, runScript, smartSearch } = playwrightSkills;
 
@@ -118,6 +119,14 @@ export const SKILLS: Record<string, Skill> = {
     description: '生成网页',
     execute: async (params) => generateHtml(params.message)
   },
+  
+  // 自我编程
+  'self.coder': {
+    name: 'self.coder',
+    description: '自我编程 - 修改自己的代码',
+    execute: async (params) => executeSelfCoder(params.message)
+  },
+  
   // 自我感知
   'self.awareness': {
     name: 'self.awareness',

@@ -1,9 +1,9 @@
 {
   "version": 8,
   "level": 8,
-  "xp": 740,
-  "totalInteractions": 80,
-  "successfulSkills": 74,
+  "xp": 750,
+  "totalInteractions": 81,
+  "successfulSkills": 75,
   "failedSkills": 6,
   "patterns": [
     {
@@ -171,6 +171,12 @@
     {
       "trigger": "目前你查邮件是如何查的",
       "skill": "email.list",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "在 server.ts 中添加一个 /p",
+      "skill": "code.solve",
       "successRate": 100,
       "count": 1
     }

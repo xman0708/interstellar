@@ -78,6 +78,8 @@ function detectByKeywords(message: string): { intent: string; params: any } | nu
     'code.run': ['运行代码', '执行代码', '跑一下', 'run code'],
     'code.solve': ['帮我写', '写一个', '计算', '处理', '找出', '去重', '排序', '过滤', '求和'],
     'code.generate': ['生成代码', 'create code'],
+    // 自我编程
+    'self.coder': ['修改代码', '改一下代码', '添加功能', '加个接口', '添加接口', '修改server', '在server.ts'],
   };
   
   for (const [intent, keywords] of Object.entries(keywordMap)) {
