@@ -16,9 +16,9 @@ import { feishuNotifier } from './feishu-notifier';
 const execAsync = promisify(exec);
 
 const CONFIG = {
-  projectPath: path.join(__dirname, '../..'),
-  logPath: path.join(__dirname, '../../workspace/logs/health-check.log'),
-  serverLogPath: path.join(__dirname, '../../workspace/logs/server.log'),
+  projectPath: path.join(process.cwd()),
+  logPath: path.join(process.cwd(), 'workspace/logs/health-check.log'),
+  serverLogPath: path.join(process.cwd(), 'workspace/logs/server.log'),
   checkIntervalSeconds: 60, // 每60秒检查一次
   maxErrorRate: 0.3, // 超过30%错误率触发重启
   maxMemoryMB: 500, // 超过500MB内存触发告警
