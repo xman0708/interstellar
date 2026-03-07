@@ -74,12 +74,12 @@ function detectByKeywords(message: string): { intent: string; params: any } | nu
     'browser.search': ['搜索', '上网', '搜索一下', 'google', '查一下'],
     'browser.open': ['打开', '访问', '浏览网页'],
     'weather.get': ['天气', '多少度', '冷不冷', '热不热'],
+    // 自我编程 (优先级高)
+    'self.coder': ['修改代码', '改一下代码', '添加功能', '加个接口', '添加接口', '修改server', '在server.ts', '添加一个', '加一个', '新增接口', 'server.ts中', 'server.ts'],
     // 代码
     'code.run': ['运行代码', '执行代码', '跑一下', 'run code'],
     'code.solve': ['帮我写', '写一个', '计算', '处理', '找出', '去重', '排序', '过滤', '求和'],
     'code.generate': ['生成代码', 'create code'],
-    // 自我编程
-    'self.coder': ['修改代码', '改一下代码', '添加功能', '加个接口', '添加接口', '修改server', '在server.ts'],
   };
   
   for (const [intent, keywords] of Object.entries(keywordMap)) {

@@ -70,6 +70,12 @@ const mockData = {
   ]
 };
 
+// ============ Ping API ============
+
+app.get('/ping', (req, res) => {
+    res.json({ message: 'pong' });
+});
+
 // ============ Agent API ============
 
 app.post('/api/agent/chat', async (req, res) => {

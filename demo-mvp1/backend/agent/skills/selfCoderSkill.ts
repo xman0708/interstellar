@@ -59,17 +59,27 @@ async function collectContext(): Promise<string> {
  */
 async function callOpenCode(request: string): Promise<ModifyResult> {
   try {
-    // 构建完整命令
-    const fullRequest = `在 LivingCode/demo-mvp1/backend 目录下: ${request}`;
+    // 切换到 backend 目录执行
+    const backendDir = BACKEND_PATH;
     
-    // 调用 opencode
+    // 构建完整请求
+    const fullRequest = `${request}`;
+    
+    console.log(`[SelfCoder] 正在调用 OpenCode: ${fullRequest}`);
+    
+    // 使用 opencode run 命令，指定 minimax 模型
     const { stdout, stderr } = await execAsync(
-      `opencode run "${fullRequest}" --fork`,
-      { timeout: 300000 } // 5分钟超时
+      `cd ${backendDir} && opencode -m opencode/minimax-m2.5-free run "${fullRequest}" --fork 2>&1`,
+      { timeout: 300000, shell: '/bin/zsh' }
     );
 
+    console.log(`[SelfCoder] OpenCode stdout: ${stdout.slice(0, 500)}`);
+    if (stderr) {
+      console.log(`[SelfCoder] OpenCode stderr: ${stderr.slice(0, 500)}`);
+    }
+
     // 检查是否有明显错误
-    if (stderr && stderr.includes('Error')) {
+    if (stderr && stderr.toLowerCase().includes('error')) {
       return {
         success: false,
         message: `OpenCode 执行出错: ${stderr.slice(0, 500)}`
@@ -101,6 +111,7 @@ async function callOpenCode(request: string): Promise<ModifyResult> {
     };
 
   } catch (error: any) {
+    console.log(`[SelfCoder] 执行失败: ${error.message}`);
     return {
       success: false,
       message: `执行失败: ${error.message}`
