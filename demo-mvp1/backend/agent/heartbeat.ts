@@ -82,6 +82,8 @@ class HeartbeatManager {
       tasks: [
         { name: 'health_check', interval: 60 * 1000, enabled: true },
         { name: 'cleanup_sessions', interval: 5 * 60 * 1000, enabled: true },
+        { name: 'self_evolution', interval: 5 * 60 * 1000, enabled: true },
+        { name: 'fetch_emails', interval: 5 * 60 * 1000, enabled: true },
       ]
     };
   }
@@ -206,8 +208,8 @@ export function setupHeartbeatTasks(heartbeat: HeartbeatManager): void {
     return null;
   });
   
-  // 自我进化 (每6小时一次)
-  heartbeat.registerTask('self_evolution', 6 * 60 * 60 * 1000, async () => {
+  // 自我进化 (每5分钟一次)
+  heartbeat.registerTask('self_evolution', 5 * 60 * 1000, async () => {
     console.log('[Evolution] Starting self-evolution cycle...');
     try {
       await runSelfEvolution();

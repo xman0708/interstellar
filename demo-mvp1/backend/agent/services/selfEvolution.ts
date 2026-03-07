@@ -218,17 +218,38 @@ function getImpactDescription(issue: Issue): string {
 /**
  * 3. 执行进化
  */
-async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean; message: string }> {
+async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean; message: string; committed?: boolean }> {
   console.log(`[Evolution] Executing: ${plan.description}`);
   
-  // 如果是代码修改类型的计划，调用 self_coder
-  if (plan.description.includes('修复') || plan.description.includes('优化') || plan.description.includes('添加')) {
-    // 这里可以调用 self_coder 来实际修改代码
-    // 目前先记录
-    return {
-      success: true,
-      message: `已记录进化计划: ${plan.description}`
-    };
+  // 如果是代码修改类型的计划
+  if (plan.description.includes('修复') || plan.description.includes('优化') || plan.description.includes('添加') || plan.description.includes('拆分')) {
+    try {
+      const backendPath = path.join(__dirname, '../../');
+      
+      // 检查是否有代码变化
+      const { stdout: status } = await execAsync('git status --porcelain', { cwd: backendPath });
+      
+      if (status.trim()) {
+        // 有变化，提交
+        await execAsync('git add .', { cwd: backendPath });
+        await execAsync(`git commit -m "evolution: ${plan.description.slice(0, 50)}"`, { cwd: backendPath });
+        
+        // 尝试推送
+        try {
+          await execAsync('git push origin main', { cwd: backendPath, timeout: 30000 });
+          console.log('[Evolution] 代码已提交并推送');
+        } catch {
+          console.log('[Evolution] 推送失败，仅本地提交');
+        }
+        
+        return { success: true, message: `已自动提交: ${plan.description}`, committed: true };
+      } else {
+        return { success: true, message: `已记录计划: ${plan.description}`, committed: false };
+      }
+    } catch (error: any) {
+      console.log('[Evolution] Git 操作失败:', error.message);
+      return { success: true, message: `已记录: ${plan.description}` };
+    }
   }
   
   return { success: false, message: '不需要修改代码' };
