@@ -18,6 +18,7 @@ import { executeSkill, getSkillList, SKILLS } from './skills/registry.js';
 import { recordInteraction, getSmartLevel, getOptimizationSuggestions } from './services/evolution.js';
 import { classifyIntent, classifyIntentSimple, type IntentResult } from './services/intentClassifier.js';
 import { executeSelfCoder } from './skills/selfCoderSkill.js';
+import { runAgentLoop } from './services/agentLoop.js';
 
 const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
 const BASE_URL = process.env.MINIMAX_BASE_URL || 'https://api.minimaxi.com/anthropic';
@@ -244,6 +245,22 @@ async function smartCodeExecute(message: string): Promise<UIResponse> {
  */
 async function smartExecute(message: string, history: any[]): Promise<{ intent: string; result: any; ui: UIResponse } | null> {
   const triedIntents = new Set<string>();
+  
+  // ===== 检查是否是回答澄清问题 =====
+  // 如果上一条消息是 clarification，直接执行 self_coder
+  const lastAIMessage = history.filter(m => m.role === 'assistant').pop();
+  const isAnsweringClarification = lastAIMessage?.content?.includes('你想') && 
+    (lastAIMessage.content.includes('？') || lastAIMessage.content.includes('?'));
+  
+  if (isAnsweringClarification) {
+    console.log('[SmartExec] User answered clarification, executing self.coder...');
+    const coderResult = await executeSelfCoder(message);
+    return {
+      intent: 'self.coder',
+      result: coderResult,
+      ui: { type: 'text', content: coderResult.message }
+    };
+  }
   
   // ===== 新增: LLM Intent Classifier =====
   console.log('[SmartExec] Using LLM Intent Classifier...');
@@ -607,13 +624,42 @@ export async function agentChat(request: AgentRequest): Promise<AgentResponse> {
   const session = SessionManager.getSession(sessionId);
   const turns = Math.floor(session.messages.length / 2);
   const history = session.getHistory();
-  const ctx = getSessionContext(session.id);
   
   session.addMessage({ role: 'user', content: message });
   
+  // ===== PI-Mono Style Agent Loop =====
+  console.log('[Agent] Using PI-Mono style agent loop...');
+  
+  try {
+    const result = await runAgentLoop(message, history);
+    
+    session.addMessage({ role: 'assistant', content: result.response });
+    
+    return {
+      sessionId: session.id,
+      ui: { type: 'text', content: result.response },
+      skillUsed: result.toolCalls[0] || 'chat',
+      turns,
+      brain: getSmartLevel()
+    };
+  } catch (error: any) {
+    console.error('[Agent] Agent loop error:', error);
+    
+    // Fallback to old logic
+    console.log('[Agent] Falling back to old logic...');
+    return await agentChatFallback(request, session, history, turns);
+  }
+}
+
+/**
+ * Fallback - 原有逻辑
+ */
+async function agentChatFallback(request: AgentRequest, session: any, history: any[], turns: number): Promise<AgentResponse> {
+  const { message } = request;
+  const msg = message.toLowerCase();
   let ui: UIResponse;
   let skillUsed: string | undefined;
-  const msg = message.toLowerCase();
+  const ctx = getSessionContext(session.id);
   
   // 检查上下文：待发送的邮件
   const isWriteEmail = msg.includes('写邮件') || msg.includes('创建邮件') || msg.includes('起草邮件');

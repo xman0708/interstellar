@@ -28,6 +28,16 @@
 - [x] 修改前备份 + 失败回滚
 - [x] 上下文采集测试通过 (4个文件, 1个文档)
 
+## Phase 4: Intent Classifier (LLM 意图识别) ✅ 完成
+- [x] 创建 `intentClassifier.ts`
+- [x] LLM 判断用户意图 (skill / self_coder / chat)
+- [x] 智能澄清 (需要时询问用户)
+- [x] 简单匹配作为后备
+- [x] 测试通过:
+  - "今天天气怎么样" → weather.get ✅
+  - "帮我查查有哪些邮件" → email.list ✅
+  - "你自己升级下邮件模块" → self_coder (需要澄清) ✅
+
 ---
 
 最后更新: 2026-03-07 11:52

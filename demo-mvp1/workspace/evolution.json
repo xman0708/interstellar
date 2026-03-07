@@ -1,10 +1,10 @@
 {
-  "version": 9,
-  "level": 9,
-  "xp": 830,
-  "totalInteractions": 96,
-  "successfulSkills": 83,
-  "failedSkills": 13,
+  "version": 10,
+  "level": 10,
+  "xp": 940,
+  "totalInteractions": 108,
+  "successfulSkills": 94,
+  "failedSkills": 14,
   "patterns": [
     {
       "trigger": "查看项目列表",
@@ -58,7 +58,7 @@
       "trigger": "今天天气怎么样",
       "skill": "weather.get",
       "successRate": 100,
-      "count": 5
+      "count": 6
     },
     {
       "trigger": "分析项目进度和工时统计",
@@ -208,13 +208,37 @@
       "trigger": "你自己升级下邮件模块",
       "skill": "self.coder",
       "successRate": 100,
-      "count": 2
+      "count": 7
     },
     {
       "trigger": "帮我查查有哪些邮件",
       "skill": "email.list",
       "successRate": 100,
       "count": 1
+    },
+    {
+      "trigger": "\"今天天气怎么样\"",
+      "skill": "weather.get",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "今天上海天气",
+      "skill": "weather.get",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "查询下有没有这个文件，订单数据2026-",
+      "skill": "clarification",
+      "successRate": 100,
+      "count": 1
+    },
+    {
+      "trigger": "邮件模块",
+      "skill": "clarification",
+      "successRate": 100,
+      "count": 2
     }
   ],
   "improvements": [
@@ -273,6 +297,13 @@
       "before": "Level 8",
       "after": "Level 9",
       "reason": "XP reached 800"
+    },
+    {
+      "time": "2026-03-07T06:26:22.924Z",
+      "type": "skill",
+      "before": "Level 9",
+      "after": "Level 10",
+      "reason": "XP reached 900"
     }
   ],
   "autoTuning": {
