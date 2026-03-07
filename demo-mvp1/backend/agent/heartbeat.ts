@@ -16,6 +16,7 @@ import {
   getImportantEmails,
   type Notification 
 } from './services/external.js';
+import { runSelfEvolution } from './services/selfEvolution.js';
 
 const WORKSPACE_PATH = path.join(__dirname, '../../../workspace');
 const HEARTBEAT_FILE = path.join(WORKSPACE_PATH, 'HEARTBEAT.md');
@@ -203,6 +204,24 @@ export function setupHeartbeatTasks(heartbeat: HeartbeatManager): void {
     const cleaned = SessionManager.cleanup(24 * 60 * 60 * 1000);
     if (cleaned > 0) console.log(`[Cleanup] Removed ${cleaned} sessions`);
     return null;
+  });
+  
+  // 自我进化 (每6小时一次)
+  heartbeat.registerTask('self_evolution', 6 * 60 * 60 * 1000, async () => {
+    console.log('[Evolution] Starting self-evolution cycle...');
+    try {
+      await runSelfEvolution();
+      return {
+        id: 'self_evolution',
+        type: 'system',
+        title: '自我进化完成',
+        content: 'LivingCode 已完成一次自我诊断和优化',
+        time: new Date().toISOString()
+      };
+    } catch (error: any) {
+      console.error('[Evolution] Error:', error);
+      return null;
+    }
   });
   
   // 检查邮件

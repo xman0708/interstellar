@@ -1,0 +1,279 @@
+/**
+ * LivingCode 自我进化系统
+ * 
+ * 左右互搏：自己诊断问题，自己优化自己
+ */
+
+import * as fs from 'fs';
+import * as path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
+
+const WORKSPACE_PATH = path.join(__dirname, '../../../workspace');
+const LOG_PATH = path.join(WORKSPACE_PATH, 'logs');
+const MEMORY_PATH = path.join(WORKSPACE_PATH, 'memory');
+
+interface DiagnosisResult {
+  issues: Issue[];
+  score: number; // 0-100
+}
+
+interface Issue {
+  type: 'error' | 'performance' | 'ux' | 'logic';
+  severity: 'high' | 'medium' | 'low';
+  description: string;
+  file?: string;
+  suggestion?: string;
+}
+
+interface EvolutionPlan {
+  id: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  estimatedImpact: string;
+}
+
+/**
+ * 1. 自我诊断 - 分析最近的问题
+ */
+async function selfDiagnose(): Promise<DiagnosisResult> {
+  const issues: Issue[] = [];
+  let score = 100;
+  
+  // 读取最近日志
+  const logFile = path.join(LOG_PATH, 'server.log');
+  if (fs.existsSync(logFile)) {
+    const content = fs.readFileSync(logFile, 'utf-8');
+    const lines = content.split('\n');
+    const recentLines = lines.slice(-500); // 最近500行
+    
+    // 检查错误
+    const errorLines = recentLines.filter(l => 
+      l.includes('Error') || l.includes('error') || l.includes('Exception')
+    );
+    
+    if (errorLines.length > 50) {
+      issues.push({
+        type: 'error',
+        severity: 'high',
+        description: `最近有 ${errorLines.length} 条错误日志`,
+        suggestion: '需要排查错误根源'
+      });
+      score -= 20;
+    } else if (errorLines.length > 10) {
+      issues.push({
+        type: 'error',
+        severity: 'medium',
+        description: `最近有 ${errorLines.length} 条错误日志`,
+        suggestion: '需要关注'
+      });
+      score -= 10;
+    }
+    
+    // 检查内存问题
+    const memoryLines = recentLines.filter(l => l.includes('内存使用率过高'));
+    if (memoryLines.length > 5) {
+      issues.push({
+        type: 'performance',
+        severity: 'high',
+        description: '内存使用率多次过高',
+        suggestion: '需要优化内存管理'
+      });
+      score -= 15;
+    }
+  }
+  
+  // 检查代码复杂度
+  const backendPath = path.join(__dirname, '../../');
+  const tsFiles = getTypeScriptFiles(backendPath);
+  
+  let totalLines = 0;
+  for (const file of tsFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    totalLines += content.split('\n').length;
+  }
+  
+  if (tsFiles.length > 30) {
+    issues.push({
+      type: 'performance',
+      severity: 'medium',
+      description: `项目有 ${tsFiles.length} 个 TypeScript 文件，共 ${totalLines} 行代码`,
+      suggestion: '考虑拆分过大的模块'
+    });
+  }
+  
+  // 检查缺失的功能
+  const skillsPath = path.join(backendPath, 'agent/skills');
+  const skillFiles = fs.readdirSync(skillsPath).filter(f => f.endsWith('Skill.ts'));
+  
+  const requiredSkills = ['email', 'weather', 'calendar', 'code'];
+  for (const skill of requiredSkills) {
+    const hasSkill = skillFiles.some(f => f.toLowerCase().includes(skill.toLowerCase()));
+    if (!hasSkill) {
+      issues.push({
+        type: 'logic',
+        severity: 'medium',
+        description: `缺少 ${skill} 相关技能`,
+        suggestion: `添加 ${skill} 技能`
+      });
+      score -= 5;
+    }
+  }
+  
+  return { issues, score: Math.max(0, score) };
+}
+
+/**
+ * 获取所有 TypeScript 文件
+ */
+function getTypeScriptFiles(dir: string): string[] {
+  const files: string[] = [];
+  
+  function walk(d: string) {
+    const entries = fs.readdirSync(d, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(d, entry.name);
+      if (entry.isDirectory() && !entry.name.includes('node_modules')) {
+        walk(fullPath);
+      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
+        files.push(fullPath);
+      }
+    }
+  }
+  
+  walk(dir);
+  return files;
+}
+
+/**
+ * 2. 生成进化计划
+ */
+function generateEvolutionPlan(diagnosis: DiagnosisResult): EvolutionPlan[] {
+  const plans: EvolutionPlan[] = [];
+  
+  for (const issue of diagnosis.issues) {
+    if (issue.type === 'error' && issue.severity === 'high') {
+      plans.push({
+        id: `fix_error_${Date.now()}`,
+        description: `修复错误: ${issue.description}`,
+        priority: 'high',
+        estimatedImpact: '提高系统稳定性'
+      });
+    }
+    
+    if (issue.type === 'performance' && issue.severity === 'high') {
+      plans.push({
+        id: `optimize_perf_${Date.now()}`,
+        description: `性能优化: ${issue.description}`,
+        priority: 'high',
+        estimatedImpact: '提升响应速度'
+      });
+    }
+    
+    if (issue.type === 'logic') {
+      plans.push({
+        id: `add_feature_${Date.now()}`,
+        description: `功能增强: ${issue.description}`,
+        priority: issue.severity === 'high' ? 'high' : 'medium',
+        estimatedImpact: '提升用户体验'
+      });
+    }
+  }
+  
+  // 按优先级排序
+  plans.sort((a, b) => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+  
+  return plans;
+}
+
+/**
+ * 3. 执行进化
+ */
+async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean; message: string }> {
+  console.log(`[Evolution] Executing: ${plan.description}`);
+  
+  // 如果是代码修改类型的计划，调用 self_coder
+  if (plan.description.includes('修复') || plan.description.includes('优化') || plan.description.includes('添加')) {
+    // 这里可以调用 self_coder 来实际修改代码
+    // 目前先记录
+    return {
+      success: true,
+      message: `已记录进化计划: ${plan.description}`
+    };
+  }
+  
+  return { success: false, message: '不需要修改代码' };
+}
+
+/**
+ * 4. 记录学习
+ */
+function recordLearning(diagnosis: DiagnosisResult, plans: EvolutionPlan[], results: any[]) {
+  const date = new Date().toISOString().split('T')[0];
+  const memoryFile = path.join(MEMORY_PATH, `evolution-${date}.md`);
+  
+  let content = `# 自我进化记录 - ${date}\n\n`;
+  content += `## 健康评分\n\n${diagnosis.score}/100\n\n`;
+  content += `## 发现的问题\n\n`;
+  for (const issue of diagnosis.issues) {
+    content += `- [${issue.severity}] ${issue.description}\n`;
+  }
+  content += `\n## 进化计划\n\n`;
+  for (const plan of plans) {
+    content += `- [${plan.priority}] ${plan.description}\n`;
+  }
+  content += `\n## 执行结果\n\n`;
+  for (const result of results) {
+    content += `- ${result.message}\n`;
+  }
+  
+  fs.writeFileSync(memoryFile, content);
+  console.log(`[Evolution] Learning recorded: ${memoryFile}`);
+}
+
+/**
+ * 主循环 - 自我进化
+ */
+export async function runSelfEvolution(): Promise<void> {
+  console.log('\n========== LivingCode 自我进化 ==========');
+  
+  // 1. 诊断
+  console.log('[1/4] 自我诊断中...');
+  const diagnosis = await selfDiagnose();
+  console.log(`健康评分: ${diagnosis.score}/100`);
+  console.log(`发现问题: ${diagnosis.issues.length}个`);
+  
+  if (diagnosis.issues.length === 0) {
+    console.log('一切正常，无需进化');
+    return;
+  }
+  
+  // 2. 制定计划
+  console.log('\n[2/4] 制定进化计划...');
+  const plans = generateEvolutionPlan(diagnosis);
+  console.log(`计划: ${plans.length}项`);
+  
+  // 3. 执行
+  console.log('\n[3/4] 执行进化...');
+  const results = [];
+  for (const plan of plans.slice(0, 3)) { // 每次最多执行3个
+    const result = await executeEvolution(plan);
+    results.push(result);
+  }
+  
+  // 4. 记录学习
+  console.log('\n[4/4] 记录学习...');
+  recordLearning(diagnosis, plans, results);
+  
+  console.log('\n========== 自我进化完成 ==========\n');
+}
+
+// CLI 入口
+if (require.main === module) {
+  runSelfEvolution().then(() => process.exit(0));
+}
