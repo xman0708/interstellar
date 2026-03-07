@@ -247,6 +247,48 @@ function getImpactDescription(issue: Issue): string {
 async function executeEvolution(plan: EvolutionPlan): Promise<{ success: boolean; message: string; committed?: boolean }> {
   console.log(`[Evolution] Executing: ${plan.description}`);
   
+  // 如果是设计问题，尝试用 self_coder 修复
+  if (plan.description.includes('设计问题') || plan.description.includes('伪流式') || plan.description.includes('Tool Calling')) {
+    try {
+      // 调用 self_coder 尝试修复
+      const { executeSelfCoder } = await import('../skills/selfCoderSkill.js');
+      
+      let fixRequest = plan.description;
+      if (plan.description.includes('伪流式')) {
+        fixRequest = '修复 LivingCode 的伪流式响应问题，改为真正的流式输出';
+      } else if (plan.description.includes('Tool Calling')) {
+        fixRequest = '实现 LivingCode 的 Tool Calling 功能';
+      }
+      
+      console.log('[Evolution] Calling self_coder to fix:', fixRequest);
+      const result = await executeSelfCoder(fixRequest);
+      console.log('[Evolution] self_coder result:', result.message);
+      
+      // 检查是否有变化
+      const backendPath = path.join(__dirname, '../../');
+      const { stdout: status } = await execAsync('git status --porcelain', { cwd: backendPath });
+      
+      if (status.trim()) {
+        await execAsync('git add .', { cwd: backendPath });
+        await execAsync(`git commit -m "fix: ${plan.description.slice(0, 50)}"`, { cwd: backendPath });
+        
+        try {
+          await execAsync('git push origin main', { cwd: backendPath, timeout: 30000 });
+          console.log('[Evolution] 修复已提交并推送');
+        } catch {
+          console.log('[Evolution] 推送失败，仅本地提交');
+        }
+        
+        return { success: true, message: `已修复: ${plan.description}`, committed: true };
+      }
+      
+      return { success: true, message: result.message };
+    } catch (error: any) {
+      console.log('[Evolution] self_coder error:', error.message);
+      return { success: false, message: `修复失败: ${error.message}` };
+    }
+  }
+  
   // 如果是代码修改类型的计划
   if (plan.description.includes('修复') || plan.description.includes('优化') || plan.description.includes('添加') || plan.description.includes('拆分')) {
     try {
