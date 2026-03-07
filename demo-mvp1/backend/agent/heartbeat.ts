@@ -148,7 +148,7 @@ class HeartbeatManager {
             this.notifications.push(...notifs);
             console.log(`[Heartbeat] Generated ${notifs.length} notifications`);
           }
-          task.lastRun = now;
+          if (task.lastRun === 0) task.lastRun = now - task.interval + 60000; // 启动后1分钟执行
         } catch (error: any) {
           console.error(`[Heartbeat] ${task.name} error:`, error.message);
         }
@@ -198,6 +198,21 @@ export function setupHeartbeatTasks(heartbeat: HeartbeatManager): void {
   heartbeat.registerTask('health_check', 60 * 1000, async () => {
     const sessions = SessionManager.listSessions();
     console.log(`[Health] Sessions: ${sessions.length}, Notifications: ${heartbeat.getNotifications().length}`);
+    
+    // 顺便执行自我进化检查 (每60次检查，即约1小时)
+    const checkCount = (heartbeat as any)._checkCount || 0;
+    (heartbeat as any)._checkCount = checkCount + 1;
+    
+    if (checkCount % 60 === 0) {
+      console.log('[Health] Triggering self-evolution check...');
+      try {
+        const { runSelfEvolution } = await import('./services/selfEvolution.js');
+        await runSelfEvolution();
+      } catch (e: any) {
+        console.error('[Health] Self-evolution error:', e.message);
+      }
+    }
+    
     return null;
   });
   
