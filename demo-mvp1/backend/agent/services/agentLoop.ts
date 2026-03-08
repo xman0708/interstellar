@@ -13,6 +13,9 @@ import { analyzeIntentSmart } from './smartIntent.js';
 import { runAgent, agentDecision } from './agentDecision.js';
 import { recordQuery, recordAction, getRecommendations } from './userHabits.js';
 import { addMessage, updateContext, enhanceWithContext, getContext } from './sessionMemory.js';
+import { parse as nluParse } from './nluEngine.js';
+import { getSuggestions } from './actionSuggest.js';
+import { withRecovery } from './errorRecovery.js';
 
 const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
 
