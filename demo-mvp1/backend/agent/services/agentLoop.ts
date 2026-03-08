@@ -1,17 +1,40 @@
 /**
- * PI-Mono Style Agent Loop - 智能版
+ * PI-Mono Style Agent Loop - 智能版 v2
  * 
- * LLM 主动决定要做什么，不犹豫
+ * 升级：
+ * - 向量相似度意图匹配
+ * - Agent 自主决策
+ * - 用户习惯学习
+ * - 并行执行
  */
 
 import { TOOLS, executeTool } from './toolRegistry.js';
+import { analyzeIntentSmart } from './smartIntent.js';
+import { runAgent, agentDecision } from './agentDecision.js';
+import { recordQuery, recordAction, getRecommendations } from './userHabits.js';
 
 const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
 
 /**
- * 分析用户意图，返回最合适的工具
+ * 分析用户意图 - 智能版（使用向量相似度）
  */
 function analyzeIntent(message: string): { name: string; params: any } | null {
+  // 使用智能意图分析
+  const intents = analyzeIntentSmart(message);
+  
+  if (intents.length > 0 && intents[0].confidence > 0.5) {
+    console.log('[AgentLoop] Smart intent matched:', intents[0].name, 'confidence:', intents[0].confidence);
+    return { name: intents[0].name, params: intents[0].params };
+  }
+  
+  // 回退到旧的关键词匹配
+  return analyzeIntentLegacy(message);
+}
+
+/**
+ * 旧版意图分析（兼容）
+ */
+function analyzeIntentLegacy(message: string): { name: string; params: any } | null {
   const msg = message.toLowerCase();
   
   // 天气
@@ -179,7 +202,40 @@ function analyzeIntent(message: string): { name: string; params: any } | null {
 /**
  * PI-Mono 风格 Agent Loop - 智能版
  */
+// 启用 Agent 自主决策模式
+const USE_AGENT_DECISION = true;
+
 export async function runAgentLoop(userMessage: string, history: any[] = []): Promise<{ response: string; toolCalls: string[] }> {
+  console.log('[AgentLoop] Processing:', userMessage);
+  
+  // 记录用户查询
+  recordQuery(userMessage);
+  
+  // 尝试 Agent 自主决策（如果启用）
+  if (USE_AGENT_DECISION) {
+    try {
+      const agentResult = await runAgent(userMessage, history);
+      
+      if (agentResult.results && agentResult.results.length > 0) {
+        // 记录执行的工具
+        for (const r of agentResult.results) {
+          recordAction(r.tool);
+        }
+        
+        console.log('[AgentLoop] Agent decision:', agentResult.reasoning);
+        console.log('[AgentLoop] Executed', agentResult.results.length, 'tools');
+        
+        return {
+          response: agentResult.response,
+          toolCalls: agentResult.results.map((r: any) => r.tool)
+        };
+      }
+    } catch (e) {
+      console.log('[AgentLoop] Agent decision failed, fallback to legacy');
+    }
+  }
+  
+  // 回退到传统模式
   console.log('[AgentLoop] Analyzing intent...');
   
   // 智能分析意图

@@ -1,0 +1,12 @@
+{
+  "frequentQueries": [
+    "今天天气怎么"
+  ],
+  "frequentActions": [
+    "get_weather"
+  ],
+  "lastQueries": [
+    "今天天气怎么"
+  ],
+  "preferences": {}
+}
