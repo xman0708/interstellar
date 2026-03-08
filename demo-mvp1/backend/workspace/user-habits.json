@@ -1,11 +1,16 @@
 {
   "frequentQueries": [
+    "今天天气怎么样",
+    "搜索Python教程",
     "今天天气怎么"
   ],
   "frequentActions": [
+    "web_search",
     "get_weather"
   ],
   "lastQueries": [
+    "今天天气怎么样",
+    "搜索Python教程",
     "今天天气怎么"
   ],
   "preferences": {}
