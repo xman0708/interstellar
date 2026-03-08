@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import { v4 as uuidv4 } from 'uuid';
 import { agentChat, SessionManager } from './agent/index.js';
+import { sseEmitter, sendStep } from './sse-emitter.js';
 import { HeartbeatManager, setupHeartbeatTasks } from './agent/heartbeat.js';
 import { getSkillList, executeSkill } from './agent/skills/registry.js';
 import { loadProfile, saveProfile, getUserStats, recordSkillUsage } from './agent/services/profile.js';
@@ -70,6 +72,51 @@ const mockData = {
   ]
 };
 
+// ============ SSE 连接管理 ============
+
+// 客户端 SSE 连接映射
+const sseClients = new Map<string, string>(); // clientId -> sessionId
+
+// 获取或创建客户端 ID
+function getClientId(req: any): string {
+  return req.query.clientId || uuidv4();
+}
+
+// SSE 连接端点
+app.get('/api/agent/stream/connect', (req, res) => {
+  const clientId = getClientId(req);
+  const sessionId = req.query.sessionId as string || 'default';
+  
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+  
+  // 注册 SSE 客户端
+  sseEmitter.register(clientId, (data) => {
+    res.write(data);
+  });
+  
+  sseClients.set(clientId, sessionId);
+  console.log(`[SSE] Client connected: ${clientId}, session: ${sessionId}`);
+  
+  // 发送连接成功消息
+  res.write(`data: ${JSON.stringify({ event: 'connected', data: { clientId, sessionId } })}\n\n`);
+  
+  // 心跳保持连接
+  const heartbeat = setInterval(() => {
+    res.write(`: heartbeat\n\n`);
+  }, 30000);
+  
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    sseEmitter.unregister(clientId);
+    sseClients.delete(clientId);
+    console.log(`[SSE] Client disconnected: ${clientId}`);
+  });
+});
+
 // ============ Ping API ============
 
 app.get('/ping', (req, res) => {
@@ -80,10 +127,27 @@ app.get('/ping', (req, res) => {
 
 app.post('/api/agent/chat', async (req, res) => {
     try {
-        const { message, sessionId, context } = req.body;
+        const { message, sessionId, context, clientId } = req.body;
         if (!message) return res.status(400).json({ error: 'message is required' });
         
+        const sid = clientId || sessionId || 'default';
+        
+        // 发送用户消息步骤
+        sendStep(sid, 'thinking', '收到用户消息', message.slice(0, 50));
+        
+        // 发送分析步骤
+        sendStep(sid, 'thinking', '分析用户意图', '识别任务类型和所需技能');
+        
         const result = await agentChat({ message, sessionId, context });
+        
+        // 发送技能调用步骤
+        if (result.skillUsed) {
+          sendStep(sid, 'action', '执行技能', `调用 ${result.skillUsed}`);
+        }
+        
+        // 发送结果步骤
+        sendStep(sid, 'result', '生成响应', result.ui.type || 'text');
+        
         console.log('[Server] Result ui:', JSON.stringify(result.ui));
         
         // 检查是否有新通知
@@ -91,6 +155,9 @@ app.post('/api/agent/chat', async (req, res) => {
         if (notifications.length > 0) {
           result.notifications = notifications;
         }
+        
+        // 发送完成步骤
+        sendStep(sid, 'complete', '完成', `用时 ${result.turns || 0} 轮对话`);
         
         res.json(result);
     } catch (error: any) {
