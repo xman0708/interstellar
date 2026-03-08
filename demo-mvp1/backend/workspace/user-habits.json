@@ -1,24 +1,24 @@
 {
   "frequentQueries": [
+    "今天天气怎么样",
     "你可以做什么",
     "haihaoma",
     "你好",
     "查看邮件",
-    "今天天气怎么样",
     "搜索Python教程",
     "今天天气怎么"
   ],
   "frequentActions": [
-    "list_emails",
     "get_weather",
+    "list_emails",
     "web_search"
   ],
   "lastQueries": [
+    "今天天气怎么样",
     "你可以做什么",
     "haihaoma",
     "你好",
     "查看邮件",
-    "今天天气怎么样",
     "搜索Python教程",
     "今天天气怎么"
   ],
