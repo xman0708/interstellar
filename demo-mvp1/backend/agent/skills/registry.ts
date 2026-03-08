@@ -13,7 +13,7 @@ import { browse, searchWeb } from './browserSkill.js';
 import { getWeather } from './weatherSkill.js';
 import { executeSelfCoder } from './selfCoderSkill.js';
 import * as playwrightSkills from './playwrightSkill.js';
-const { smartBrowserAction, openPage, takeScreenshot, clickElement, typeText, runScript, smartSearch, autoFillForm, smartClickButton, scrollPage, screenshotElement, smartScreenshotElement, extractData, waitForElement, createNewTab, switchToTab, closeTab, listTabs } = playwrightSkills;
+const { smartBrowserAction, openPage, takeScreenshot, clickElement, typeText, runScript, smartSearch, autoFillForm, smartClickButton, scrollPage, screenshotElement, smartScreenshotElement, extractData, waitForElement, createNewTab, switchToTab, closeTab, listTabs, downloadFile, smartDownloadDocument, saveAsPdf } = playwrightSkills;
 
 export interface Skill {
   name: string;
@@ -308,6 +308,23 @@ export const SKILLS: Record<string, Skill> = {
     name: 'browser.listTabs',
     description: '列出标签页 - 查看所有标签页',
     execute: async () => listTabs()
+  },
+  
+  // 下载功能
+  'browser.download': {
+    name: 'browser.download',
+    description: '下载文件 - 下载指定URL的文件',
+    execute: async (params) => downloadFile(params.url, params.filename)
+  },
+  'browser.smartDownload': {
+    name: 'browser.smartDownload',
+    description: '智能下载 - 自动识别并下载文档',
+    execute: async (params) => smartDownloadDocument(params.message || params.text || '')
+  },
+  'browser.saveAsPdf': {
+    name: 'browser.saveAsPdf',
+    description: '保存为PDF - 将当前页面保存为PDF',
+    execute: async () => saveAsPdf()
   },
 };
 

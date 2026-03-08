@@ -165,6 +165,14 @@ function analyzeIntent(message: string): { name: string; params: any } | null {
     return { name: 'browser.listTabs', params: {} };
   }
   
+  // 下载功能
+  if (msg.includes('下载') || msg.includes('保存') || msg.includes('另存')) {
+    if (msg.includes('pdf') || msg.includes('PDF') || msg.includes('页面')) {
+      return { name: 'browser.saveAsPdf', params: {} };
+    }
+    return { name: 'browser.smartDownload', params: { message } };
+  }
+  
   return null;
 }
 

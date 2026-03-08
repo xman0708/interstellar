@@ -741,3 +741,64 @@ export async function listTabs(): Promise<any> {
     return { success: false, error: error.message };
   }
 }
+
+// ========== 文档下载 ==========
+
+// 下载文件
+export async function downloadFile(url: string, filename?: string): Promise<any> {
+  try {
+    const b = await getBrowser();
+    const downloadPath = `/Users/anhui/Downloads/${filename || url.split('/').pop() || 'download'}`;
+    const downloadPage = await b.newPage();
+    const cdp = await downloadPage.context().newCDPSession(downloadPage);
+    await cdp.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: '/Users/anhui/Downloads' });
+    await downloadPage.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await downloadPage.waitForTimeout(2000);
+    await downloadPage.close();
+    return { success: true, message: `✅ 文件已下载到: ${downloadPath}`, path: downloadPath };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// 智能下载文档
+export async function smartDownloadDocument(message: string): Promise<any> {
+  try {
+    if (!page) return { success: false, error: '没有打开的页面' };
+    const msg = message.toLowerCase();
+    const result = await page.evaluate((m) => {
+      const keywords = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar', '下载', 'download'];
+      const links = document.querySelectorAll('a[href]');
+      for (const link of links) {
+        const href = link.getAttribute('href') || '';
+        const text = link.textContent?.toLowerCase() || '';
+        if (keywords.some(k => href.includes(k) || text.includes(k))) {
+          let fullUrl = href;
+          if (href.startsWith('//')) fullUrl = 'https:' + href;
+          if (href.startsWith('/')) { try { fullUrl = window.location.origin + href; } catch (e) { continue; } }
+          return { url: fullUrl, text: link.textContent?.trim(), filename: href.split('/').pop() };
+        }
+      }
+      return null;
+    }, msg);
+    if (!result) return { success: false, error: '未找到可下载的文档链接' };
+    return downloadFile(result.url, result.filename);
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// 页面另存为 PDF
+export async function saveAsPdf(): Promise<any> {
+  try {
+    if (!page) return { success: false, error: '没有打开的页面' };
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+    const filename = `page_${Date.now()}.pdf`;
+    const filepath = `/Users/anhui/Downloads/${filename}`;
+    const fs = await import('fs');
+    fs.writeFileSync(filepath, Buffer.from(pdfBuffer));
+    return { success: true, message: `✅ 页面已保存为 PDF: ${filename}`, path: filepath };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
