@@ -631,7 +631,7 @@ export async function agentChat(request: AgentRequest): Promise<AgentResponse> {
   console.log('[Agent] Using PI-Mono style agent loop...');
   
   try {
-    const result = await runAgentLoop(message, history);
+    const result = await runAgentLoop(message, history, session.id);
     
     session.addMessage({ role: 'assistant', content: result.response });
     

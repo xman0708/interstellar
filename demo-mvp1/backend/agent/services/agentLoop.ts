@@ -12,6 +12,7 @@ import { TOOLS, executeTool } from './toolRegistry.js';
 import { analyzeIntentSmart } from './smartIntent.js';
 import { runAgent, agentDecision } from './agentDecision.js';
 import { recordQuery, recordAction, getRecommendations } from './userHabits.js';
+import { addMessage, updateContext, enhanceWithContext, getContext } from './sessionMemory.js';
 
 const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
 
@@ -205,16 +206,29 @@ function analyzeIntentLegacy(message: string): { name: string; params: any } | n
 // 启用 Agent 自主决策模式
 const USE_AGENT_DECISION = true;
 
-export async function runAgentLoop(userMessage: string, history: any[] = []): Promise<{ response: string; toolCalls: string[] }> {
+export async function runAgentLoop(userMessage: string, history: any[] = [], sessionId: string = 'default'): Promise<{ response: string; toolCalls: string[] }> {
   console.log('[AgentLoop] Processing:', userMessage);
   
   // 记录用户查询
   recordQuery(userMessage);
   
+  // 增强消息（理解代词和省略）
+  const enhancedMessage = enhanceWithContext(userMessage, sessionId);
+  if (enhancedMessage !== userMessage) {
+    console.log('[AgentLoop] Enhanced message:', enhancedMessage);
+  }
+  
+  // 添加到会话记忆
+  addMessage(sessionId, 'user', userMessage);
+  
+  // 获取上下文
+  const context = getContext(sessionId);
+  const contextMessages = context.recentMessages.map(m => ({ role: m.role, content: m.content }));
+  
   // 尝试 Agent 自主决策（如果启用）
   if (USE_AGENT_DECISION) {
     try {
-      const agentResult = await runAgent(userMessage, history);
+      const agentResult = await runAgent(enhancedMessage, contextMessages);
       
       if (agentResult.results && agentResult.results.length > 0) {
         // 记录执行的工具
@@ -224,6 +238,14 @@ export async function runAgentLoop(userMessage: string, history: any[] = []): Pr
         
         console.log('[AgentLoop] Agent decision:', agentResult.reasoning);
         console.log('[AgentLoop] Executed', agentResult.results.length, 'tools');
+        
+        // 保存助手回复到记忆
+        addMessage(sessionId, 'assistant', agentResult.response);
+        
+        // 更新上下文
+        if (agentResult.results.length > 0) {
+          updateContext(sessionId, agentResult.reasoning, agentResult.results[0].tool, {});
+        }
         
         return {
           response: agentResult.response,
