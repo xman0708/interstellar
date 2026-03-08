@@ -75,6 +75,53 @@ function analyzeIntent(message: string): { name: string; params: any } | null {
     return { name: 'web_search', params: { query: queryMatch?.[1] || message } };
   }
   
+  // 页面滚动
+  if (msg.includes('滚动') || msg.includes('向上') || msg.includes('向下') || msg.includes('到底部') || msg.includes('到顶部')) {
+    let direction: any = 'down';
+    if (msg.includes('向上')) direction = 'up';
+    else if (msg.includes('向下') || msg.includes('下翻')) direction = 'down';
+    else if (msg.includes('顶') || msg.includes('开头')) direction = 'top';
+    else if (msg.includes('底') || msg.includes('结尾')) direction = 'bottom';
+    return { name: 'browser.scroll', params: { direction } };
+  }
+  
+  // 点击按钮
+  if (msg.includes('点击') || msg.includes('按') || msg.includes('确认') || msg.includes('提交')) {
+    const buttonMatch = message.match(/点击[的]?(.*?)(?:按钮|$)/) || message.match(/按(.*?)(?:按钮|$)/);
+    if (buttonMatch) {
+      return { name: 'browser.clickButton', params: { description: buttonMatch[1] || message } };
+    }
+  }
+  
+  // 填写表单
+  if (msg.includes('填写') || msg.includes('填') || msg.includes('输入')) {
+    // 提取表单数据
+    const dataMatch = message.match(/填写?(.+)/);
+    if (dataMatch) {
+      const dataStr = dataMatch[1];
+      // 简单解析: 姓名xxx 邮箱xxx
+      const data: Record<string, string> = {};
+      const patterns = [
+        /姓名[:：]?\s*(\S+)/,
+        /邮箱[:：]?\s*(\S+@\S+)/,
+        /电话[:：]?\s*(\S+)/,
+        /密码[:：]?\s*(\S+)/,
+      ];
+      for (const p of patterns) {
+        const m = dataStr.match(p);
+        if (m) {
+          if (p.toString().includes('姓名')) data.name = m[1];
+          else if (p.toString().includes('邮箱')) data.email = m[1];
+          else if (p.toString().includes('电话')) data.phone = m[1];
+          else if (p.toString().includes('密码')) data.password = m[1];
+        }
+      }
+      if (Object.keys(data).length > 0) {
+        return { name: 'browser.autoFill', params: { data } };
+      }
+    }
+  }
+  
   // 自我编程 - 关键词
   const selfCoderKeywords = ['改代码', '修改代码', '升级', '优化', '重构', '添加功能', '自己', '自我', '升级模块'];
   if (selfCoderKeywords.some(kw => msg.includes(kw))) {
@@ -84,6 +131,38 @@ function analyzeIntent(message: string): { name: string; params: any } | null {
   // 代码问题
   if (msg.includes('代码') || msg.includes('编程') || msg.includes('算法')) {
     return { name: 'solve_problem', params: { problem: message } };
+  }
+  
+  // 提取数据
+  if (msg.includes('提取') || msg.includes('获取') || msg.includes('抓取') || msg.includes('导出')) {
+    if (msg.includes('数据') || msg.includes('表格') || msg.includes('图片') || msg.includes('链接')) {
+      const patterns: Record<string, string> = {
+        '表格': 'table', '表': 'table',
+        '图片': 'image', '图': 'image',
+        '链接': 'link', '商品': 'product', '新闻': 'news'
+      };
+      let pattern = 'links';
+      for (const [k, v] of Object.entries(patterns)) {
+        if (msg.includes(k)) { pattern = v; break; }
+      }
+      return { name: 'browser.extractData', params: { pattern } };
+    }
+  }
+  
+  // 标签页操作
+  if (msg.includes('新标签') || msg.includes('打开新') || msg.includes('新建页面')) {
+    const urlMatch = message.match(/(?:https?:\/\/)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})/);
+    return { name: 'browser.newTab', params: { url: urlMatch ? 'https://' + urlMatch[1] : '' } };
+  }
+  if (msg.includes('切换') && (msg.includes('标签') || msg.includes('页面') || msg.includes('tab'))) {
+    const numMatch = message.match(/第?(\d+)/);
+    return { name: 'browser.switchTab', params: { index: numMatch ? parseInt(numMatch[1]) - 1 : 0 } };
+  }
+  if (msg.includes('关闭') && (msg.includes('标签') || msg.includes('页面') || msg.includes('tab'))) {
+    return { name: 'browser.closeTab', params: {} };
+  }
+  if (msg.includes('所有标签') || msg.includes('标签页列表')) {
+    return { name: 'browser.listTabs', params: {} };
   }
   
   return null;

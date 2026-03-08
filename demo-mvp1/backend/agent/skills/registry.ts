@@ -13,7 +13,7 @@ import { browse, searchWeb } from './browserSkill.js';
 import { getWeather } from './weatherSkill.js';
 import { executeSelfCoder } from './selfCoderSkill.js';
 import * as playwrightSkills from './playwrightSkill.js';
-const { smartBrowserAction, openPage, takeScreenshot, clickElement, typeText, runScript, smartSearch } = playwrightSkills;
+const { smartBrowserAction, openPage, takeScreenshot, clickElement, typeText, runScript, smartSearch, autoFillForm, smartClickButton, scrollPage, screenshotElement, smartScreenshotElement, extractData, waitForElement, createNewTab, switchToTab, closeTab, listTabs } = playwrightSkills;
 
 export interface Skill {
   name: string;
@@ -241,10 +241,73 @@ export const SKILLS: Record<string, Skill> = {
     description: '输入文字 - 在输入框输入文字',
     execute: async (params) => typeText(params.selector, params.text)
   },
+  'browser.autoFill': {
+    name: 'browser.autoFill',
+    description: '自动填写表单 - 智能识别并填写表单',
+    execute: async (params) => autoFillForm(params.data || params)
+  },
+  'browser.clickButton': {
+    name: 'browser.clickButton',
+    description: '智能点击按钮 - 根据描述点击按钮',
+    execute: async (params) => smartClickButton(params.description || params.text || params.button || '')
+  },
+  'browser.scroll': {
+    name: 'browser.scroll',
+    description: '页面滚动 - 上/下/顶部/底部',
+    execute: async (params) => scrollPage(params.direction || params.delta || 'down')
+  },
   'weather.get': {
     name: 'weather.get',
     description: '天气查询 - 查询城市天气',
     execute: async (params) => getWeather(params.city || '北京')
+  },
+  
+  // P2: 元素截图
+  'browser.screenshotElement': {
+    name: 'browser.screenshotElement',
+    description: '元素截图 - 对特定元素进行截图',
+    execute: async (params) => screenshotElement(params.selector)
+  },
+  'browser.smartScreenshot': {
+    name: 'browser.smartScreenshot',
+    description: '智能截图 - 根据描述截图',
+    execute: async (params) => smartScreenshotElement(params.description || params.text || '')
+  },
+  
+  // P2: 提取数据
+  'browser.extractData': {
+    name: 'browser.extractData',
+    description: '提取数据 - 从页面提取结构化数据',
+    execute: async (params) => extractData(params.pattern || params.type || 'links')
+  },
+  
+  // P2: 等待加载
+  'browser.waitForElement': {
+    name: 'browser.waitForElement',
+    description: '等待元素 - 智能等待元素加载',
+    execute: async (params) => waitForElement(params.selector, params.timeout)
+  },
+  
+  // P3: 多标签页
+  'browser.newTab': {
+    name: 'browser.newTab',
+    description: '新建标签页 - 打开新标签页',
+    execute: async (params) => createNewTab(params.url || '')
+  },
+  'browser.switchTab': {
+    name: 'browser.switchTab',
+    description: '切换标签页 - 切换到指定标签页',
+    execute: async (params) => switchToTab(params.index || 0)
+  },
+  'browser.closeTab': {
+    name: 'browser.closeTab',
+    description: '关闭标签页 - 关闭当前或指定标签页',
+    execute: async (params) => closeTab(params.index)
+  },
+  'browser.listTabs': {
+    name: 'browser.listTabs',
+    description: '列出标签页 - 查看所有标签页',
+    execute: async () => listTabs()
   },
 };
 
