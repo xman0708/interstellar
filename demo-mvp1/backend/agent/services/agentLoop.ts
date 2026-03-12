@@ -13,7 +13,7 @@ import { recordQuery, recordAction } from './userHabits.js';
 import { addMessage, getContext } from './sessionMemory.js';
 import { runReActLoop } from './reactLoop.js';
 
-const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
+const API_KEY = process.env.MINIMAX_API_KEY || '';
 const MODEL = process.env.MINIMAX_MODEL || 'MiniMax-M2.5';
 
 const MAX_ITERATIONS = 10;

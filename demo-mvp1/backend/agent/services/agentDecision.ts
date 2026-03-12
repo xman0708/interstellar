@@ -6,7 +6,7 @@
 import { executeTool } from './toolRegistry.js';
 import { getRecommendations, recordAction } from './userHabits.js';
 
-const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
+const API_KEY = process.env.MINIMAX_API_KEY || '';
 
 // 可用工具列表
 const AVAILABLE_TOOLS = [

@@ -9,6 +9,7 @@ import * as path from 'path';
 
 const WORKSPACE_PATH = path.join(__dirname, '../../../workspace');
 const IMPROVEMENT_LOG = path.join(WORKSPACE_PATH, 'improvement.log');
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 interface Improvement {
   time: string;
@@ -50,7 +51,7 @@ export async function selfCheck(): Promise<Improvement[]> {
   
   // 1. 检查服务状态
   try {
-    const res = await fetch('http://localhost:3000/api/agent/heartbeat');
+    const res = await fetch(`${API_BASE_URL}/agent/heartbeat`);
     const data = await res.json();
     
     if (!data.running) {
@@ -64,7 +65,7 @@ export async function selfCheck(): Promise<Improvement[]> {
   
   // 2. 检查编程能力
   try {
-    const res = await fetch('http://localhost:3000/api/skills');
+    const res = await fetch(`${API_BASE_URL}/skills`);
     const skills = await res.json();
     const codeSkills = skills.filter((s: any) => s.name.startsWith('code.'));
     
@@ -78,7 +79,7 @@ export async function selfCheck(): Promise<Improvement[]> {
   
   // 3. 检查错误日志
   try {
-    const sessions = await fetch('http://localhost:3000/api/agent/sessions');
+    const sessions = await fetch(`${API_BASE_URL}/agent/sessions`);
     const data = await sessions.json();
     
     if (data.length > 100) {

@@ -2,7 +2,7 @@
  * API Skill - 业务 API 调用
  */
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = process.env.APP_BASE_URL || 'http://localhost:3000';
 
 export async function executeApi(params: {
   method: string;

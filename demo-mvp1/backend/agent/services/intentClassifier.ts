@@ -4,7 +4,7 @@
  * 每句话都先过 LLM 判断用户真正想做什么
  */
 
-const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-saV7qhcrLNkCCmQs-wF1Y4vCm_EGwQtCgh2NaB5LuG0JAUiNGqpTd3VPTSmbwOY-JZ6HVmq4Hk6FnD5RGhoVs94zdvusv5qifTaNBX492VkOUWc7xkuTgo0';
+const API_KEY = process.env.MINIMAX_API_KEY || '';
 
 export interface IntentResult {
   intent: 'skill' | 'self_coder' | 'chat' | 'unknown';

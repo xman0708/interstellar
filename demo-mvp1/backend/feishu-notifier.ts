@@ -10,10 +10,10 @@ import * as path from 'path';
 
 const CONFIG = {
   // 飞书应用凭据 (需要替换为实际值)
-  appId: process.env.FEISHU_APP_ID || 'cli_a90a0b72cb789bdb',
-  appSecret: process.env.FEISHU_APP_SECRET || 'EWgHhpyy3kLuKrypngw7wg8mIooVRJSC',
+  appId: process.env.FEISHU_APP_ID || '',
+  appSecret: process.env.FEISHU_APP_SECRET || '',
   // 通知目标: user_id 或 open_id 或群 chat_id
-  notifyUserId: process.env.FEISHU_NOTIFY_USER_ID || 'ou_51ec545c4bf02911a1a4cd303315ea6b',
+  notifyUserId: process.env.FEISHU_NOTIFY_USER_ID || '',
   notifyChatId: process.env.FEISHU_NOTIFY_CHAT_ID || '',
   logPath: path.join(process.cwd(), 'workspace/logs/feishu-notifier.log'),
 };
