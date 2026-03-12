@@ -110,7 +110,7 @@ export class ProactiveManager {
    */
   private async checkSessions(): Promise<void> {
     try {
-      const sessions = SessionManager.getAllSessions();
+      const sessions = SessionManager.listSessions();
       const activeSessions = sessions.filter((s: any) => s.messages?.length > 0);
       
       // 如果会话太多，发送通知
