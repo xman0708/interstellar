@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const DATA_DIR = '/Users/anhui/code/LivingCode/demo-mvp1/backend/workspace';
+const DATA_DIR = path.join(__dirname, '../../../workspace');
 const HABITS_FILE = path.join(DATA_DIR, 'user-habits.json');
 
 interface HabitData {

@@ -133,17 +133,18 @@ ${TOOLS_DESCRIPTION}
       }
       
       const { thought, action, params, lifecycle } = parsed;
+      const cleanedThought = (thought || '').replace(/<think>[\s\S]*?<\/think>\s*/gi, '').trim();
       console.log('[ReAct] Thought:', thought?.slice(0, 80));
       console.log('[ReAct] Action:', action, '| Lifecycle:', lifecycle);
       
-      thoughts.push(thought);
-      messages.push({ role: 'assistant', content: JSON.stringify({ thought, action, params, lifecycle }) });
+      thoughts.push(cleanedThought || thought);
+      messages.push({ role: 'assistant', content: JSON.stringify({ thought: cleanedThought || thought, action, params, lifecycle }) });
       
       // 检查生命周期
       if (lifecycle === 'end') {
-        addMessage(sessionId, 'assistant', thought);
+        addMessage(sessionId, 'assistant', cleanedThought || thought);
         console.log('[ReAct] Done! Tools used:', toolCalls.length);
-        return { response: thought, toolCalls, thoughts, lifecycle: 'end' };
+        return { response: cleanedThought || thought, toolCalls, thoughts, lifecycle: 'end' };
       }
       
       if (lifecycle === 'error' || lifecycle === 'abort') {
