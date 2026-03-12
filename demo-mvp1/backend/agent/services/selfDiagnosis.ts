@@ -105,7 +105,7 @@ function checkSessions(): any {
   const issues: string[] = [];
   
   try {
-    const sessions = SessionManager.getAllSessions();
+    const sessions = SessionManager.listSessions();
     const activeCount = sessions.filter((s: any) => s.messages?.length > 0).length;
     
     if (activeCount > 100) {
