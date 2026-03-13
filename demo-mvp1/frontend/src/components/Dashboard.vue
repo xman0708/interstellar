@@ -106,13 +106,13 @@
         <div class="chat-input-area">
           <input 
             v-model="input" 
-            @keyup.enter="sendMessage"
+            @keyup.enter="sendMessage()"
             placeholder="输入消息..."
             :disabled="isSending"
           />
           <button 
             class="send-btn" 
-            @click="sendMessage"
+            @click="sendMessage()"
             :disabled="isSending || !input.trim()"
           >
             <span v-if="!isSending">➤</span>
