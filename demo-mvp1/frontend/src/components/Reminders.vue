@@ -121,7 +121,7 @@ const newReminder = ref({
   time: ''
 });
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+const API_BASE = ''; // Vercel API routes 自动映射
 
 const filteredReminders = computed(() => {
   if (filterStatus.value === 'all') return reminders.value;

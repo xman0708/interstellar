@@ -103,7 +103,7 @@ interface Reminder {
 }
 
 const allReminders = ref<Reminder[]>([]);
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+const API_BASE = ''; // Vercel API routes 自动映射
 
 const stats = computed(() => {
   const now = new Date();
