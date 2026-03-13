@@ -21,6 +21,20 @@
           <span class="tab-icon">📊</span>
           <span>Dashboard</span>
         </button>
+        <button 
+          :class="['nav-tab', { active: currentView === 'reminders' }]" 
+          @click="currentView = 'reminders'"
+        >
+          <span class="tab-icon">📝</span>
+          <span>提醒</span>
+        </button>
+        <button 
+          :class="['nav-tab', { active: currentView === 'admin' }]" 
+          @click="currentView = 'admin'"
+        >
+          <span class="tab-icon">⚙️</span>
+          <span>管理</span>
+        </button>
       </div>
       <div class="nav-status">
         <span class="status-dot"></span>
@@ -33,6 +47,8 @@
       <Transition name="fade" mode="out-in">
         <CopilotPanel v-if="currentView === 'copilot'" />
         <Dashboard v-else-if="currentView === 'dashboard'" />
+        <Reminders v-else-if="currentView === 'reminders'" />
+        <Admin v-else-if="currentView === 'admin'" />
       </Transition>
     </main>
   </div>
@@ -42,8 +58,10 @@
 import { ref } from 'vue';
 import CopilotPanel from './components/CopilotPanel.vue';
 import Dashboard from './components/Dashboard.vue';
+import Reminders from './components/Reminders.vue';
+import Admin from './components/Admin.vue';
 
-const currentView = ref<'copilot' | 'dashboard'>('copilot');
+const currentView = ref<'copilot' | 'dashboard' | 'reminders' | 'admin'>('copilot');
 </script>
 
 <style>
